@@ -51,6 +51,43 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
 
     # Layout within the dummy collapsible button
     parametersFormLayout = qt.QFormLayout(parametersCollapsibleButton)
+    
+    # 1. Przycisk obejmujacy wszystkie nastepne elementy
+    myParameters = ctk.ctkCollapsibleButton()
+    myParameters.text = "Parametry modulu"
+    self.layout.addWidget(myParameters)
+    
+    myParametersFormLayout = qt.QFormLayout(myParameters)
+    
+    # 2. Lista rozwijana
+    self.myComboBox = slicer.qMRMLNodeComboBox()
+    self.myComboBox.nodeTypes = ["vtkMRMLScalarVolumeNode"]
+    self.myComboBox.selectNodeUponCreation = True
+    self.myComboBox.addEnabled = False
+    self.myComboBox.removeEnabled = False
+    self.myComboBox.noneEnabled = False
+    self.myComboBox.showHidden = False
+    self.myComboBox.showChildNodeTypes = False
+    self.myComboBox.setMRMLScene( slicer.mrmlScene )
+    self.myComboBox.setToolTip( "Pick the input to the algorithm." )
+    myParametersFormLayout.addRow("Wybor modelu: ", self.myComboBox)
+    
+    # 3. Suwak
+    self.mySlider = ctk.ctkSliderWidget()
+    self.mySlider.singleStep = 0.1
+    self.mySlider.minimum = 0
+    self.mySlider.maximum = 100
+    self.mySlider.value = 50
+    self.mySlider.setToolTip("Ustwia przezroczystosc w zakresie 0-100")
+    myParametersFormLayout.addRow("Prog", self.mySlider)
+    
+    # 4. Przycisk
+    self.myButton = qt.QPushButton("Ukryj/Wyswietl")
+    self.myButton.toolTip = "Ukrycie lub wyswietlenie wybranego modelu."
+    self.myButton.enabled = True
+    myParametersFormLayout.addRow(self.myButton)
+    
+    
 
     #
     # input volume selector
@@ -113,12 +150,17 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
     self.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
     self.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
+    
+    
+    self.myComboBox.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
 
     # Add vertical spacer
     self.layout.addStretch(1)
 
     # Refresh Apply button state
     self.onSelect()
+
+  
 
   def cleanup(self):
     pass
@@ -131,6 +173,22 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     imageThreshold = self.imageThresholdSliderWidget.value
     logic.run(self.inputSelector.currentNode(), self.outputSelector.currentNode(), imageThreshold, enableScreenshotsFlag)
+
+    # Moje funkcje
+    #   self.isVisible = 1
+
+#  def onMyButton(self):
+#    logic = ModuleLogic()
+        
+        #        if(self.isVisible == 0):
+        #    self.isVisible = 1
+        #        else:
+        #            self.isVisible = 0
+                        
+    
+# self.imageThresholdSliderWidget.showHidden = self.isVisible
+
+
 
 #
 # ModuleLogic
