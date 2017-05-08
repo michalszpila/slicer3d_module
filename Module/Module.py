@@ -69,7 +69,7 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
     self.myComboBox.showHidden = False
     self.myComboBox.showChildNodeTypes = False
     self.myComboBox.setMRMLScene( slicer.mrmlScene )
-    self.myComboBox.setToolTip( "Pick the input to the algorithm." )
+    self.myComboBox.setToolTip( "Wybierz model ze sceny" )
     myParametersFormLayout.addRow("Wybor modelu: ", self.myComboBox)
     
     # 3. Suwak
@@ -173,6 +173,12 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
     enableScreenshotsFlag = self.enableScreenshotsFlagCheckBox.checked
     imageThreshold = self.imageThresholdSliderWidget.value
     logic.run(self.inputSelector.currentNode(), self.outputSelector.currentNode(), imageThreshold, enableScreenshotsFlag)
+
+#def onSelectMySlider(self):
+
+
+#def onSelectMySlider(self):
+
 
     # Moje funkcje
     #   self.isVisible = 1
@@ -290,7 +296,6 @@ class ModuleLogic(ScriptedLoadableModuleLogic):
     logging.info('Processing completed')
 
     return True
-
 
 class ModuleTest(ScriptedLoadableModuleTest):
   """
