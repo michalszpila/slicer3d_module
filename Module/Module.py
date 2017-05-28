@@ -61,11 +61,11 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
     
     # 2. Lista rozwijana
     self.myComboBox = slicer.qMRMLNodeComboBox()
-    self.myComboBox.nodeTypes = ["vtkMRMLScalarVolumeNode"]
+    self.myComboBox.nodeTypes = ["vtkMRMLModelNode"]
     self.myComboBox.selectNodeUponCreation = True
-    self.myComboBox.addEnabled = False
-    self.myComboBox.removeEnabled = False
-    self.myComboBox.noneEnabled = False
+    self.myComboBox.addEnabled = True
+    self.myComboBox.removeEnabled = True
+    self.myComboBox.noneEnabled = True
     self.myComboBox.showHidden = False
     self.myComboBox.showChildNodeTypes = False
     self.myComboBox.setMRMLScene( slicer.mrmlScene )
@@ -150,9 +150,12 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
     self.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
     self.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
+    self.myButton.connect('clicked(bool)', self.onButtonVisibility)
+    self.myComboBox.connect("currentNodeChanged(vtkMRMLNode*)", self.onComboBox)
+    self.mySlider.connect('valueChanged(double)',self.onMySliderChanged)
     
     
-    self.myComboBox.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
+  #  self.myComboBox.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
 
     # Add vertical spacer
     self.layout.addStretch(1)
@@ -174,25 +177,18 @@ class ModuleWidget(ScriptedLoadableModuleWidget):
     imageThreshold = self.imageThresholdSliderWidget.value
     logic.run(self.inputSelector.currentNode(), self.outputSelector.currentNode(), imageThreshold, enableScreenshotsFlag)
 
-#def onSelectMySlider(self):
+  def onButtonVisibility(self):
+    logic = ModuleLogic()
+    logic.showOrHide(self.myComboBox.currentNode())
+	
 
-
-#def onSelectMySlider(self):
-
-
-    # Moje funkcje
-    #   self.isVisible = 1
-
-#  def onMyButton(self):
-#    logic = ModuleLogic()
-        
-        #        if(self.isVisible == 0):
-        #    self.isVisible = 1
-        #        else:
-        #            self.isVisible = 0
-                        
-    
-# self.imageThresholdSliderWidget.showHidden = self.isVisible
+  def onComboBox(self):
+    self.myButton.enabled = self.myComboBox.currentNode()
+	
+  
+  def onMySliderChanged(self):
+    logic = ModuleLogic()
+    logic.changeOpacity(self.myComboBox.currentNode(), self.mySlider.value)
 
 
 
@@ -209,6 +205,34 @@ class ModuleLogic(ScriptedLoadableModuleLogic):
   Uses ScriptedLoadableModuleLogic base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
+  
+  
+  def hasModel(self, model):
+	if not model:
+	  logging.debug('No model')
+	  return False
+	return True
+  
+  def showOrHide(self, model):
+	if not self.hasModel(model):
+	  slicer.util.errorDisplay('No input model!')
+	  return False
+		
+	displayNode = model.GetDisplayNode()
+	if(displayNode.GetVisibility() == 1):
+	  displayNode.SetVisibility(0)
+	else:
+	  displayNode.SetVisibility(1)
+		
+		
+
+  def changeOpacity(self, model, opacity):
+	if not self.hasModel(model):
+	  slicer.util.errorDisplay('No input model!')
+	  return False
+		
+	displayNode = model.GetDisplayNode()
+	displayNode.SetOpacity(opacity/100)
 
   def hasImageData(self,volumeNode):
     """This is an example logic method that
